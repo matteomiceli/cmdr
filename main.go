@@ -17,9 +17,17 @@ func main() {
 	//}
 
 	scripts := getScripts()
-	for _, script := range scripts {
-		script.run()
+	for i, script := range scripts {
+		fmt.Printf("[%d] %s\n", i, script.meta.Name())
 	}
+
+	fmt.Print("\nSelect a script to run: ")
+	var choice int
+	fmt.Scanln(&choice)
+
+	fmt.Printf("\033[2J")
+
+	scripts[choice].run()
 }
 
 type scriptFile struct {
