@@ -12,12 +12,33 @@ import (
 
 func main() {
 	scripts := getScripts()
+	args := os.Args
+
+	if len(args) == 1 {
+		// Commander interface (ie. cmdr)
+		cmdr(scripts)
+	} else {
+		maybeCommand := args[1]
+		for _, script := range scripts {
+			if maybeCommand == script.name || maybeCommand == script.meta.Name() {
+				script.run()
+			}
+		}
+	}
+
+	// Implement
+	// can call direct command (ie. cmdr welcome-script)
+	// can call cmdr built-ins (ie. cmdr new, cmdr list)
+	// handleCmd()
+}
+
+func cmdr(scripts []scriptFile) {
 	for i, script := range scripts {
 		fmt.Printf("[%d] %s\n", i, script.meta.Name())
 	}
 
 	fmt.Print("\nSelect a script to run: ")
-	var choice int
+	var choice int = -1
 	fmt.Scanln(&choice)
 
 	fmt.Printf("\033[2J")
@@ -26,23 +47,28 @@ func main() {
 }
 
 type scriptFile struct {
+	name string
 	meta fs.FileInfo
 	kind string
 }
 
 func (s scriptFile) run() {
 	scriptPath := filepath.Join(getScriptsDir(), s.meta.Name())
+	args := []string{scriptPath}
+	if len(os.Args) > 2 {
+		args = append(args, os.Args[2:]...)
+	}
 	switch s.kind {
 	case "py":
-		runCommand("python3", scriptPath)
+		runCommand("python3", args...)
 
 	case "js":
-		runCommand("node", scriptPath)
+		runCommand("node", args...)
 
 	case "sh":
 		fallthrough
 	default:
-		runCommand("/bin/bash", scriptPath)
+		runCommand("/bin/bash", args...)
 	}
 }
 
@@ -55,7 +81,7 @@ func runCommand(runtime string, args ...string) {
 
 	err := cmd.Start()
 	if err != nil {
-		log.Fatal()
+		log.Fatal(err)
 	}
 	cmd.Wait()
 }
@@ -73,8 +99,12 @@ func getScripts() []scriptFile {
 			if err != nil {
 				log.Fatal()
 			}
-			scriptType := strings.Split(entry.Name(), ".")[1]
-			files = append(files, scriptFile{meta: info, kind: scriptType})
+			fileNameParts := strings.Split(entry.Name(), ".")
+			extension := ""
+			if len(fileNameParts) == 2 {
+				extension = fileNameParts[1]
+			}
+			files = append(files, scriptFile{name: fileNameParts[0], meta: info, kind: extension})
 		}
 	}
 
