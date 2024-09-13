@@ -11,11 +11,6 @@ import (
 )
 
 func main() {
-	//RUNNER_CONTEXT, err := os.Getwd()
-	//if err != nil {
-	//	log.Fatal()
-	//}
-
 	scripts := getScripts()
 	for i, script := range scripts {
 		fmt.Printf("[%d] %s\n", i, script.meta.Name())
@@ -39,23 +34,30 @@ func (s scriptFile) run() {
 	scriptPath := filepath.Join(getScriptsDir(), s.meta.Name())
 	switch s.kind {
 	case "py":
-		fmt.Print(runCommand("python3", scriptPath))
+		runCommand("python3", scriptPath)
 
 	case "js":
-		fmt.Print(runCommand("node", scriptPath))
+		runCommand("node", scriptPath)
 
+	case "sh":
+		fallthrough
 	default:
-		fmt.Println("Nothing")
+		runCommand("/bin/bash", scriptPath)
 	}
 }
 
-func runCommand(runtime string, args ...string) string {
+func runCommand(runtime string, args ...string) {
 	cmd := exec.Command(runtime, args...)
-	out, err := cmd.CombinedOutput()
+
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Start()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal()
 	}
-	return string(out)
+	cmd.Wait()
 }
 
 func getScripts() []scriptFile {
