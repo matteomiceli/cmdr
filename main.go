@@ -11,25 +11,24 @@ import (
 )
 
 func main() {
-	scripts := getScripts()
-	args := os.Args
+	customScripts := getScripts(getScriptsDir())
 
-	if len(args) == 1 {
+	if len(os.Args) == 1 {
 		// Commander interface (ie. cmdr)
-		cmdr(scripts)
+		cmdr(customScripts)
 	} else {
-		maybeCommand := args[1]
-		for _, script := range scripts {
+		// attempt to run a script matching the first arg
+		builtIns := getScripts(getBuiltInsDir())
+		allScripts := append(customScripts, builtIns...)
+		maybeCommand := os.Args[1]
+		for _, script := range allScripts {
 			if maybeCommand == script.name || maybeCommand == script.meta.Name() {
 				script.run()
+				return
 			}
 		}
+		fmt.Printf("%s is not a valid script name\n", maybeCommand)
 	}
-
-	// Implement
-	// can call direct command (ie. cmdr welcome-script)
-	// can call cmdr built-ins (ie. cmdr new, cmdr list)
-	// handleCmd()
 }
 
 func cmdr(scripts []scriptFile) {
@@ -48,31 +47,32 @@ func cmdr(scripts []scriptFile) {
 
 type scriptFile struct {
 	name string
+	path string
 	meta fs.FileInfo
 	kind string
 }
 
 func (s scriptFile) run() {
-	scriptPath := filepath.Join(getScriptsDir(), s.meta.Name())
+	scriptPath := filepath.Join(s.path, s.meta.Name())
 	args := []string{scriptPath}
 	if len(os.Args) > 2 {
 		args = append(args, os.Args[2:]...)
 	}
 	switch s.kind {
 	case "py":
-		runCommand("python3", args...)
+		runCommand("python3", args)
 
 	case "js":
-		runCommand("node", args...)
+		runCommand("node", args)
 
 	case "sh":
 		fallthrough
 	default:
-		runCommand("/bin/bash", args...)
+		runCommand("/bin/bash", args)
 	}
 }
 
-func runCommand(runtime string, args ...string) {
+func runCommand(runtime string, args []string) {
 	cmd := exec.Command(runtime, args...)
 
 	cmd.Stdin = os.Stdin
@@ -86,8 +86,8 @@ func runCommand(runtime string, args ...string) {
 	cmd.Wait()
 }
 
-func getScripts() []scriptFile {
-	entries, err := os.ReadDir(getScriptsDir())
+func getScripts(path string) []scriptFile {
+	entries, err := os.ReadDir(path)
 	if err != nil {
 		log.Fatal()
 	}
@@ -104,7 +104,11 @@ func getScripts() []scriptFile {
 			if len(fileNameParts) == 2 {
 				extension = fileNameParts[1]
 			}
-			files = append(files, scriptFile{name: fileNameParts[0], meta: info, kind: extension})
+			// skip hidden files
+			if fileNameParts[0] == "" {
+				continue
+			}
+			files = append(files, scriptFile{name: fileNameParts[0], path: path, meta: info, kind: extension})
 		}
 	}
 
@@ -118,9 +122,10 @@ func getScriptsDir() string {
 	}
 
 	SCRIPTS_DIR := filepath.Join(HOME_DIR, "Documents", "scripts")
-	if err != nil {
-		log.Fatal()
-	}
 
 	return SCRIPTS_DIR
+}
+
+func getBuiltInsDir() string {
+	return filepath.Join(getScriptsDir(), "built-ins")
 }
