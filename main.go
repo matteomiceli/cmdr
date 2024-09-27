@@ -10,39 +10,48 @@ import (
 	"strings"
 )
 
-func main() {
-	customScripts := getScripts(getScriptsDir())
+// TODO: global struct + methods for setup and config containing script dirs
+// get script methods, and any other additional context for the app to run,
+// eg. ENV variables to pass into exec (dir location).
+var customScripts = getScripts(getScriptsDir())
 
+func main() {
 	if len(os.Args) == 1 {
-		// Commander interface (ie. cmdr)
-		cmdr(customScripts)
+		cmdrTui(customScripts)
 	} else {
-		// attempt to run a script matching the first arg
-		builtIns := getScripts(getBuiltInsDir())
-		allScripts := append(customScripts, builtIns...)
-		maybeCommand := os.Args[1]
-		for _, script := range allScripts {
-			if maybeCommand == script.name || maybeCommand == script.meta.Name() {
-				script.run()
-				return
-			}
-		}
-		fmt.Printf("%s is not a valid script name\n", maybeCommand)
+		runScriptByName(os.Args[1])
 	}
 }
 
-func cmdr(scripts []scriptFile) {
+func cmdrTui(scripts []scriptFile) {
 	for i, script := range scripts {
 		fmt.Printf("[%d] %s\n", i, script.meta.Name())
 	}
 
-	fmt.Print("\nSelect a script to run: ")
+	fmt.Print("\nRun script: ")
+
 	var choice int = -1
 	fmt.Scanln(&choice)
-
-	fmt.Printf("\033[2J")
+	if choice == -1 {
+		fmt.Println("None selected")
+		return
+	}
 
 	scripts[choice].run()
+}
+
+func runScriptByName(scriptName string) {
+	builtIns := getScripts(getBuiltInsDir())
+
+	allScripts := append(customScripts, builtIns...)
+	maybeCommand := scriptName
+	for _, script := range allScripts {
+		if maybeCommand == script.name || maybeCommand == script.meta.Name() {
+			script.run()
+			return
+		}
+	}
+	fmt.Printf("%s is not a valid script name\n", maybeCommand)
 }
 
 type scriptFile struct {
@@ -60,19 +69,19 @@ func (s scriptFile) run() {
 	}
 	switch s.kind {
 	case "py":
-		runCommand("python3", args)
+		execCommand("python3", args)
 
 	case "js":
-		runCommand("node", args)
+		execCommand("node", args)
 
 	case "sh":
 		fallthrough
 	default:
-		runCommand("/bin/bash", args)
+		execCommand("/bin/bash", args)
 	}
 }
 
-func runCommand(runtime string, args []string) {
+func execCommand(runtime string, args []string) {
 	cmd := exec.Command(runtime, args...)
 
 	cmd.Stdin = os.Stdin
