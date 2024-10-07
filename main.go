@@ -13,11 +13,11 @@ import (
 // TODO: global struct + methods for setup and config containing script dirs
 // get script methods, and any other additional context for the app to run,
 // eg. ENV variables to pass into exec (dir location).
-var customScripts = getScripts(getScriptsDir())
+var scripts = getScripts(getScriptsDir())
 
 func main() {
 	if len(os.Args) == 1 {
-		cmdrTui(customScripts)
+		cmdrTui(scripts)
 	} else {
 		runScriptByName(os.Args[1])
 	}
@@ -41,17 +41,14 @@ func cmdrTui(scripts []scriptFile) {
 }
 
 func runScriptByName(scriptName string) {
-	builtIns := getScripts(getBuiltInsDir())
-
-	allScripts := append(customScripts, builtIns...)
 	maybeCommand := scriptName
-	for _, script := range allScripts {
+	for _, script := range scripts {
 		if maybeCommand == script.name || maybeCommand == script.meta.Name() {
 			script.run()
 			return
 		}
 	}
-	fmt.Printf("%s is not a valid script name\n", maybeCommand)
+	fmt.Printf("'%s' is not a valid script name\n", maybeCommand)
 }
 
 type scriptFile struct {
@@ -133,8 +130,4 @@ func getScriptsDir() string {
 	SCRIPTS_DIR := filepath.Join(HOME_DIR, "Documents", "scripts")
 
 	return SCRIPTS_DIR
-}
-
-func getBuiltInsDir() string {
-	return filepath.Join(getScriptsDir(), "built-ins")
 }
