@@ -25,19 +25,33 @@ func main() {
 }
 
 func cmdrTui(scripts []scriptFile) {
+	fmt.Println(`
+  /$$$$$$  /$$      /$$ /$$$$$$$  /$$$$$$$ 
+ /$$__  $$| $$$    /$$$| $$__  $$| $$__  $$
+| $$  \__/| $$$$  /$$$$| $$  \ $$| $$  \ $$
+| $$      | $$ $$/$$ $$| $$  | $$| $$$$$$$/
+| $$      | $$  $$$| $$| $$  | $$| $$__  $$
+| $$    $$| $$\  $ | $$| $$  | $$| $$  \ $$
+|  $$$$$$/| $$ \/  | $$| $$$$$$$/| $$  | $$
+ \______/ |__/     |__/|_______/ |__/  |__/
+ __________________________________________
+ `)
 	for i, script := range scripts {
 		fmt.Printf("[%d] %s\n", i, script.meta.Name())
 	}
 
-	fmt.Print("\nRun script: ")
+	fmt.Print("\n> ")
 
 	var choice int = -1
-	fmt.Scanln(&choice)
+	fmt.Scan(&choice)
 	if choice == -1 {
 		fmt.Println("None selected")
 		return
 	}
 
+	fmt.Print("\033[5A")
+	fmt.Print("\033[0K")
+	fmt.Print("\033[5B")
 	scripts[choice].run()
 }
 
