@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -66,19 +67,23 @@ func (s scriptFile) run() {
 	}
 	switch s.kind {
 	case "py":
-		execCommand("python3", args)
+		execCommand("python3", []string{}, args)
 
 	case "js":
-		execCommand("node", args)
+		execCommand("node", []string{}, args)
+
+	case "go":
+		execCommand("go", []string{"run"}, args)
 
 	case "sh":
 		fallthrough
 	default:
-		execCommand("/bin/bash", args)
+		execCommand("/bin/bash", []string{}, args)
 	}
 }
 
-func execCommand(runtime string, args []string) {
+func execCommand(runtime string, runtimeArgs []string, cmdArgs []string) {
+	args := slices.Concat(runtimeArgs, cmdArgs)
 	cmd := exec.Command(runtime, args...)
 
 	cmd.Stdin = os.Stdin
