@@ -1,0 +1,25 @@
+{
+  "scriptPath": "",
+  "runners": [
+    {
+      "runtime": "python3",
+      "runtimeArgs": [],
+      "fileAssociations": ["py"]
+    },
+    {
+      "runtime": "node",
+      "runtimeArgs": [],
+      "fileAssociations": ["js"]
+    },
+    {
+      "runtime": "go",
+      "runtimeArgs": ["run"],
+      "fileAssociations": ["go"]
+    },
+    {
+      "runtime": "/bin/bash",
+      "runtimeArgs": [],
+      "fileAssociations": ["sh", ""]
+    }
+  ]
+}

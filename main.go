@@ -17,6 +17,7 @@ import (
 var scripts = getScripts(getScriptsDir())
 
 func main() {
+	LoadConfig()
 	if len(os.Args) == 1 {
 		cmdrTui(scripts)
 	} else {
@@ -29,7 +30,7 @@ func cmdrTui(scripts []scriptFile) {
 		fmt.Printf("[%d] %s\n", i, script.meta.Name())
 	}
 
-	fmt.Print("\nRun script: ")
+	fmt.Print("\n> ")
 
 	var choice int = -1
 	fmt.Scanln(&choice)
