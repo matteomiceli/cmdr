@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 )
 
 //go:embed defaultConfig.json
@@ -23,6 +24,15 @@ type Runner struct {
 type Config struct {
 	Runners     []Runner `json:"runners"`
 	ScriptsPath string   `json:"scriptsPath"`
+}
+
+func (c *Config) getRunner(fileExtension string) (Runner, error) {
+	for _, runner := range c.Runners {
+		if slices.Contains(runner.FileAssociations, fileExtension) {
+			return runner, nil
+		}
+	}
+	return Runner{}, errors.New("No runner associated with this file.")
 }
 
 func (c *Config) getOrCreateScriptsDir() string {

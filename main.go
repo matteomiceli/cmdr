@@ -63,21 +63,12 @@ func (s scriptFile) run() {
 	if len(os.Args) > 2 {
 		args = append(args, os.Args[2:]...)
 	}
-	switch s.kind {
-	case "py":
-		execCommand("python3", []string{}, args)
 
-	case "js":
-		execCommand("node", []string{}, args)
-
-	case "go":
-		execCommand("go", []string{"run"}, args)
-
-	case "sh":
-		fallthrough
-	default:
-		execCommand("/bin/bash", []string{}, args)
+	r, err := config.getRunner(s.kind)
+	if err != nil {
+		log.Fatal(err)
 	}
+	execCommand(r.Runtime, r.RuntimeArgs, args)
 }
 
 func execCommand(runtime string, runtimeArgs []string, cmdArgs []string) {
