@@ -2,7 +2,9 @@ package main
 
 import (
 	_ "embed"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io/fs"
 	"log"
 	"os"
@@ -12,12 +14,28 @@ import (
 //go:embed defaultConfig.json
 var defaultConfig []byte
 
-func LoadConfig() {
-	getOrCreateConfigFile()
-	// return unmarshalled config
+type Runner struct {
+	Runtime          string   `json:"runtime"`
+	RuntimeArgs      []string `json:"runtimeArgs"`
+	FileAssociations []string `json:"fileAssociations"`
 }
 
-func getOrCreateConfigFile() string {
+type Config struct {
+	Runners     []Runner `json:"runners"`
+	ScriptsPath string   `json:"scriptsPath"`
+}
+
+func LoadConfig() Config {
+	var config Config
+	err := json.Unmarshal(getOrCreateConfigFile(), &config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return config
+}
+
+func getOrCreateConfigFile() []byte {
 	osConfigDir, err := os.UserConfigDir()
 	if err != nil {
 		log.Fatal(err)
@@ -39,5 +57,10 @@ func getOrCreateConfigFile() string {
 		}
 	}
 
-	return cmdrConfigPath
+	config, err := os.ReadFile(cmdrConfigPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return config
 }

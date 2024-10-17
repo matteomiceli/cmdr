@@ -11,13 +11,10 @@ import (
 	"strings"
 )
 
-// TODO: global struct + methods for setup and config containing script dirs
-// get script methods, and any other additional context for the app to run,
-// eg. ENV variables to pass into exec (dir location).
+var config = LoadConfig()
 var scripts = getScripts(getScriptsDir())
 
 func main() {
-	LoadConfig()
 	if len(os.Args) == 1 {
 		cmdrTui(scripts)
 	} else {
