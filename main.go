@@ -12,7 +12,7 @@ import (
 )
 
 var config = LoadConfig()
-var scripts = getScripts(getScriptsDir())
+var scripts = getScripts(config.getOrCreateScriptsDir())
 
 func main() {
 	if len(os.Args) == 1 {
@@ -122,15 +122,4 @@ func getScripts(path string) []scriptFile {
 	}
 
 	return files
-}
-
-func getScriptsDir() string {
-	HOME_DIR, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatal()
-	}
-
-	SCRIPTS_DIR := filepath.Join(HOME_DIR, "Documents", "scripts")
-
-	return SCRIPTS_DIR
 }

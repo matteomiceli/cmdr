@@ -4,11 +4,11 @@ import (
 	_ "embed"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/fs"
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 )
 
 //go:embed defaultConfig.json
@@ -23,6 +23,24 @@ type Runner struct {
 type Config struct {
 	Runners     []Runner `json:"runners"`
 	ScriptsPath string   `json:"scriptsPath"`
+}
+
+func (c *Config) getOrCreateScriptsDir() string {
+	scriptsDir := ""
+	if c.ScriptsPath != "" {
+		scriptsDir = c.ScriptsPath
+	} else {
+		// if not defined in config, use default location
+		home, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal()
+		}
+		scriptsDir = filepath.Join(home, "scripts")
+	}
+
+	os.MkdirAll(scriptsDir, os.ModePerm)
+
+	return scriptsDir
 }
 
 func LoadConfig() Config {
