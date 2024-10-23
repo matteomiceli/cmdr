@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io/fs"
 	"log"
@@ -8,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 )
 
@@ -28,11 +30,24 @@ func cmdrTui(scripts []scriptFile) {
 	}
 
 	fmt.Print("\n> ")
+	args := captureInput()
 
-	var choice int = -1
-	fmt.Scanln(&choice)
-	if choice == -1 {
+	if len(args) == 0 {
 		fmt.Println("None selected")
+		return
+	}
+
+	choice, err := strconv.Atoi(args[0])
+	if err != nil {
+		log.Fatal("Not a valid selection")
+	}
+
+	fmt.Println("args", args)
+
+	// user selection includes args ie.
+	// > 0 --label test
+	if len(args) > 1 {
+		scripts[choice].run(args[1:]...)
 		return
 	}
 
@@ -57,11 +72,15 @@ type scriptFile struct {
 	kind string
 }
 
-func (s scriptFile) run() {
+func (s scriptFile) run(passedArgs ...string) {
 	scriptPath := filepath.Join(s.path, s.meta.Name())
 	args := []string{scriptPath}
+	// Called from cli
 	if len(os.Args) > 2 {
 		args = append(args, os.Args[2:]...)
+		// Called from TUI
+	} else if len(passedArgs) > 0 {
+		args = append(args, passedArgs...)
 	}
 
 	r, err := config.getRunner(s.kind)
@@ -113,4 +132,13 @@ func getScripts(path string) []scriptFile {
 	}
 
 	return files
+}
+
+func captureInput() []string {
+	var input []string
+	scanner := bufio.NewScanner(os.Stdin)
+	if scanner.Scan() && scanner.Text() != "" {
+		input = strings.Split(scanner.Text(), " ")
+	}
+	return input
 }
