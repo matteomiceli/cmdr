@@ -80,11 +80,13 @@ func getOrCreateConfigFile() []byte {
 	_, nofile := os.Stat(cmdrConfigPath)
 	// config does not exist, so we make one
 	if errors.Is(nofile, fs.ErrNotExist) {
-		fmt.Printf("Couldn't find config file, generating default config in %s\n\n", cmdrConfigPath)
 		err = os.WriteFile(cmdrConfigPath, defaultConfig, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		fmt.Print(paint("green", "Couldn't find config file, generated default config in "))
+		fmt.Printf(paint("default", "%s\n\n"), cmdrConfigPath)
 	}
 
 	config, err := os.ReadFile(cmdrConfigPath)

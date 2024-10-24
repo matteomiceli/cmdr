@@ -30,7 +30,7 @@ func cmdrTui(scripts []scriptFile) {
 		fmt.Printf("[%d] %s\n", i, script.meta.Name())
 	}
 
-	fmt.Print("\n> ")
+	fmt.Print(paint("cyan", "\n> "))
 	args := captureInput()
 
 	if len(args) == 0 {
