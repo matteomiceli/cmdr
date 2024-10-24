@@ -25,6 +25,7 @@ func main() {
 }
 
 func cmdrTui(scripts []scriptFile) {
+	fmt.Println("Scripts:\n--------")
 	for i, script := range scripts {
 		fmt.Printf("[%d] %s\n", i, script.meta.Name())
 	}
@@ -41,8 +42,6 @@ func cmdrTui(scripts []scriptFile) {
 	if err != nil {
 		log.Fatal("Not a valid selection")
 	}
-
-	fmt.Println("args", args)
 
 	// user selection includes args ie.
 	// > 0 --label test

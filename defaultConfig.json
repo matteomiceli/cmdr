@@ -1,5 +1,4 @@
 {
-  "scriptsPath": "~/scripts",
   "runners": [
     {
       "runtime": "python3",

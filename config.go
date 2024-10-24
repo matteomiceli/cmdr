@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/fs"
 	"log"
 	"os"
@@ -43,7 +44,7 @@ func (c *Config) getOrCreateScriptsDir() string {
 		// if not defined in config, use default location
 		home, err := os.UserHomeDir()
 		if err != nil {
-			log.Fatal()
+			log.Fatal(err)
 		}
 		scriptsDir = filepath.Join(home, "scripts")
 	}
@@ -79,8 +80,9 @@ func getOrCreateConfigFile() []byte {
 	_, nofile := os.Stat(cmdrConfigPath)
 	// config does not exist, so we make one
 	if errors.Is(nofile, fs.ErrNotExist) {
+		fmt.Printf("Couldn't find config file, generating default config in %s\n\n", cmdrConfigPath)
 		err = os.WriteFile(cmdrConfigPath, defaultConfig, 0644)
-		if err == nil {
+		if err != nil {
 			log.Fatal(err)
 		}
 	}
