@@ -26,11 +26,11 @@ func main() {
 
 func cmdrTui(scripts []scriptFile) {
 	fmt.Println("Scripts:\n--------")
-	selNum := 0
+	numSelect := 0
 	for _, script := range scripts {
 		if !script.hidden {
-			fmt.Printf("[%d] %s\n", selNum, script.meta.Name())
-			selNum++
+			fmt.Printf("[%d] %s\n", numSelect, script.meta.Name())
+			numSelect++
 		}
 	}
 
@@ -117,12 +117,16 @@ func getScripts(path string) []scriptFile {
 				continue
 			}
 			isHidden := false
+			formattedName := fileNameParts[0]
 			if string(fileNameParts[0][0]) == "_" {
 				isHidden = true
+				// remove underscore so script can be targetted as argument
+				// ie. _new can be called using `cmdr new`
+				formattedName = fileNameParts[0][1:]
 			}
 			files = append(
 				files, scriptFile{
-					name:   fileNameParts[0],
+					name:   formattedName,
 					path:   path,
 					meta:   info,
 					kind:   extension,
