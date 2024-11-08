@@ -14,7 +14,7 @@ import (
 )
 
 var config = LoadConfig()
-var scripts = getScripts(config.getOrCreateScriptsDir())
+var scripts = getScripts(config.ScriptsPath)
 
 func main() {
 	if len(os.Args) == 1 {
@@ -146,6 +146,10 @@ func execCommand(runtime string, runtimeArgs []string, cmdArgs []string) {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
+	// Pass env vars to script
+	cmd.Env = append(cmd.Env, os.Environ()...)
+	cmd.Env = append(cmd.Env, fmt.Sprintf("CMDR_SCRIPTS_DIR=%s", config.ScriptsPath))
 
 	err := cmd.Start()
 	if err != nil {

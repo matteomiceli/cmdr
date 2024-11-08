@@ -50,6 +50,7 @@ func (c *Config) getOrCreateScriptsDir() string {
 	}
 
 	os.MkdirAll(scriptsDir, os.ModePerm)
+	c.ScriptsPath = scriptsDir
 
 	return scriptsDir
 }
@@ -60,6 +61,8 @@ func LoadConfig() Config {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	config.getOrCreateScriptsDir()
 
 	return config
 }
