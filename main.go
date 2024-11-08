@@ -26,11 +26,15 @@ func main() {
 
 func cmdrTui(scripts []scriptFile) {
 	fmt.Println("Scripts:\n--------")
-	numSelect := 0
+
+	// We don't want hidden scripts selectable from the TUI
+	filteredScripts := []scriptFile{}
+	scriptId := 0
 	for _, script := range scripts {
 		if !script.hidden {
-			fmt.Printf("[%d] %s\n", numSelect, script.meta.Name())
-			numSelect++
+			fmt.Printf("[%d] %s\n", scriptId, script.meta.Name())
+			filteredScripts = append(filteredScripts, script)
+			scriptId++
 		}
 	}
 
@@ -50,11 +54,11 @@ func cmdrTui(scripts []scriptFile) {
 	// user selection includes args ie.
 	// > 0 --label test
 	if len(args) > 1 {
-		scripts[choice].run(args[1:]...)
+		filteredScripts[choice].run(args[1:]...)
 		return
 	}
 
-	scripts[choice].run()
+	filteredScripts[choice].run()
 }
 
 func runScriptByName(scriptName string) {

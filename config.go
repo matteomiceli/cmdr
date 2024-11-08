@@ -88,8 +88,8 @@ func getOrCreateConfigFile() []byte {
 			log.Fatal(err)
 		}
 
-		fmt.Print(paint("green", "Couldn't find config file, generated default config in "))
-		fmt.Printf(paint("default", "%s\n\n"), cmdrConfigPath)
+		fmt.Print(paint("green", "Config file not found, generated default in "))
+		fmt.Printf(paint("magenta", "%s\n\n"), cmdrConfigPath)
 	}
 
 	config, err := os.ReadFile(cmdrConfigPath)
