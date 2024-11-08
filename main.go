@@ -26,8 +26,12 @@ func main() {
 
 func cmdrTui(scripts []scriptFile) {
 	fmt.Println("Scripts:\n--------")
-	for i, script := range scripts {
-		fmt.Printf("[%d] %s\n", i, script.meta.Name())
+	selNum := 0
+	for _, script := range scripts {
+		if !script.hidden {
+			fmt.Printf("[%d] %s\n", selNum, script.meta.Name())
+			selNum++
+		}
 	}
 
 	fmt.Print(paint("cyan", "\n> "))
@@ -65,10 +69,11 @@ func runScriptByName(scriptName string) {
 }
 
 type scriptFile struct {
-	name string
-	path string
-	meta fs.FileInfo
-	kind string
+	name   string
+	path   string
+	meta   fs.FileInfo
+	kind   string
+	hidden bool
 }
 
 func (s scriptFile) run(passedArgs ...string) {
@@ -89,21 +94,6 @@ func (s scriptFile) run(passedArgs ...string) {
 	execCommand(r.Runtime, r.RuntimeArgs, args)
 }
 
-func execCommand(runtime string, runtimeArgs []string, cmdArgs []string) {
-	args := slices.Concat(runtimeArgs, cmdArgs)
-	cmd := exec.Command(runtime, args...)
-
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Start()
-	if err != nil {
-		log.Fatal(err)
-	}
-	cmd.Wait()
-}
-
 func getScripts(path string) []scriptFile {
 	entries, err := os.ReadDir(path)
 	if err != nil {
@@ -118,19 +108,46 @@ func getScripts(path string) []scriptFile {
 				log.Fatal()
 			}
 			fileNameParts := strings.Split(entry.Name(), ".")
-			extension := ""
+			var extension string
 			if len(fileNameParts) == 2 {
 				extension = fileNameParts[1]
 			}
-			// skip hidden files
+			// skip files hidden from file system (eg. .config)
 			if fileNameParts[0] == "" {
 				continue
 			}
-			files = append(files, scriptFile{name: fileNameParts[0], path: path, meta: info, kind: extension})
+			isHidden := false
+			if string(fileNameParts[0][0]) == "_" {
+				isHidden = true
+			}
+			files = append(
+				files, scriptFile{
+					name:   fileNameParts[0],
+					path:   path,
+					meta:   info,
+					kind:   extension,
+					hidden: isHidden,
+				},
+			)
 		}
 	}
 
 	return files
+}
+
+func execCommand(runtime string, runtimeArgs []string, cmdArgs []string) {
+	args := slices.Concat(runtimeArgs, cmdArgs)
+	cmd := exec.Command(runtime, args...)
+
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
+	cmd.Wait()
 }
 
 func captureInput() []string {
