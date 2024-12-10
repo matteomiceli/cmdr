@@ -1,15 +1,15 @@
 # cmdr
 
-Cmdr is an extensible and configurable script runner, helping you quickly access and manage your script library.
+Cmdr is an extensible and configurable script runner, that enables you to quickly execute and manage your script library.
 
 ## Motivation
 
-The scripts I write to help automate or simplify common tasks tend to be written in different languages and are often scattered across my system. So I made cmdr to help me manage, and quickly recall my scripts. Cmdr is lightweight, extensible, and configurable to work with any language/runtime.
+I made cmdr to help organize and recall the scripts that I've saved to help automate or simplify common tasks -- which were mostly scattered across my system and written in different languages. Cmdr is lightweight, extensible, and configurable to work with most languages and runtimes.
 
 ## Features:
 - All your scripts organized in a central repository
-- Call any runtime using the `cmdr` command
-- Manage your library with built-in commands for editing, creating, and deleting sctipts
+- Unify multiple runtimes under the single `cmdr` command
+- Manage your library with built-in commands for editing, creating, and deleting scripts
 - Create your own built-in commands to extend cmdr's capabilities
 
 ## Installation
@@ -23,7 +23,7 @@ To install cmdr:
 
 ## Usage
 
-Cmdr is configured through a config file (found in your OS's default config directory). If cmdr does not detect a config file, it will create a new one. 
+Cmdr uses a config file to manage preferences and add new runtimes (located in your OS's default config location).
 
 Unless otherwise specified in your config file, cmdr will also create a scripts directory in the user's home directory (`~/scripts` by default). This is where all your custom and built-in scripts will live.
 
@@ -42,13 +42,13 @@ To call a script from the list, just enter its number and any arguments you want
 
 eg. `> 0 www.example.com -o test.html`
 
-If you know the name of the script you want to call, you can instead avoid the interface altogether and pass the name of the script along with any args as arguments to the `cmdr` function. Note: you can either call the file name (get_file) or the name including extension (get_file.py).
+If you already know the name of the script you want to call, you can instead avoid the interface altogether and pass the name of the script along with any args as arguments to the `cmdr` function. Note: you can either call the file name (get_file) or the name including extension (get_file.py).
 
 eg. `cmdr get_file www.example.com -o test.html`
 
 ### Built-ins
 
-Cmdr has a number of built-in commands that help you quickly manage your scripts. Built-ins live in the scripts directory with all your custom scripts but are prefixed with an underscore. This means you can easily modify the code of any built-in and even write your own.
+Cmdr has a number of built-in commands that help you quickly manage your scripts and can be added when you start cmdr for the first time. Built-ins live in the scripts directory with all your custom scripts but are prefixed with an underscore. This means you can easily modify the code of any built-in and even write your own.
 
 #### **cmdr new <script_name>**
 
