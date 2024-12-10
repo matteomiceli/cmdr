@@ -11,10 +11,22 @@ import (
 	"path"
 	"path/filepath"
 	"slices"
+	"strings"
 )
 
 //go:embed defaultConfig.json
 var defaultConfig []byte
+
+// builtins
+
+//go:embed builtins/_new.sh
+var _new []byte
+
+//go:embed builtins/_edit.sh
+var _edit []byte
+
+//go:embed builtins/_rm.sh
+var _rm []byte
 
 type Runner struct {
 	Runtime          string   `json:"runtime"`
@@ -49,8 +61,28 @@ func (c *Config) getOrCreateScriptsDir() string {
 		scriptsDir = filepath.Join(home, "scripts")
 	}
 
-	os.MkdirAll(scriptsDir, os.ModePerm)
+	_, err := os.Stat(scriptsDir)
+	// if scripts dir already exists
+	if err == nil {
+		c.ScriptsPath = scriptsDir
+		return scriptsDir
+	}
+
+	fmt.Printf("Scripts directory not found, creating one at %s \n\n", scriptsDir)
 	c.ScriptsPath = scriptsDir
+	os.MkdirAll(scriptsDir, os.ModePerm)
+
+	fmt.Println("Would you like to add builtin scripts? (y)es / (n)o?")
+	fmt.Println("For the best out of the box experience, it's recommended that you also install builtins.")
+
+	var ans string
+	fmt.Scan(&ans)
+	ans = strings.TrimSpace(ans)
+	if ans == "y" || ans == "yes" {
+		os.WriteFile(path.Join(scriptsDir, "_new.sh"), _new, 0644)
+		os.WriteFile(path.Join(scriptsDir, "_edit.sh"), _edit, 0644)
+		os.WriteFile(path.Join(scriptsDir, "_rm.sh"), _rm, 0644)
+	}
 
 	return scriptsDir
 }
