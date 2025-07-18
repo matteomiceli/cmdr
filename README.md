@@ -4,7 +4,7 @@ Cmdr is an extensible and configurable script runner, that enables you to quickl
 
 ## Motivation
 
-I made cmdr to help organize and recall the scripts that I've saved to help automate or simplify common tasks -- which were mostly scattered across my system and written in different languages. Cmdr is lightweight, extensible, and configurable to work with most languages and runtimes.
+I made cmdr to help organize and run scripts I've saved across projects and systems. These scripts are often written in different languages so I wanted a way to view and excute them all with a single command. Cmdr is lightweight, extensible, and configurable to work with most languages and runtimes.
 
 ## Features:
 - All your scripts organized in a central repository
@@ -48,9 +48,9 @@ eg. `cmdr get_file www.example.com -o test.html`
 
 ### Built-ins
 
-Cmdr has a number of built-in commands that help you quickly manage your scripts and can be added when you start cmdr for the first time. Built-ins live in the scripts directory with all your custom scripts but are prefixed with an underscore. This means you can easily modify the code of any built-in and even write your own.
+Cmdr has a number of built-in commands that help you quickly manage your scripts and can be added when you start cmdr for the first time. Built-ins live in the scripts directory with all your custom scripts but are prefixed with an underscore. This means you can easily modify the code of any built-in and even write your own!
 
-#### **cmdr new <script_name>**
+#### **`cmdr new`**
 
 A quick way to create a new file in your scripts directory -- this will open the new file in your default editor (configured with the `EDITOR` environment variable).
 
@@ -60,7 +60,15 @@ cmdr new get_file.py
 
 Note: when authoring cmdr scripts, you have access to the `CMDR_SCRIPTS_DIR` environment variable -- a string path to your scripts directory.
 
-#### **cmdr rm <script_name>**
+#### **`cmdr edit`**
+
+A quick way to edit an existing script -- this will open the new file in your default editor (configured with the `EDITOR` environment variable).
+
+```bash
+cmdr edit get_file.py
+```
+
+#### **`cmdr rm`**
 
 A quick way to delete a script. 
 
@@ -72,6 +80,6 @@ cmdr rm get_file.py
 
 You can make your own built-in commands by simply prepending custom scripts with an underscore.
 
-1. Create a new script in the script directory, being sure to prepend the name with an underscore (pro tip: the new built-in will automatically put scripts in your scripts directory - `cmdr new _new-built-in.sh`).
+1. Create a new script prepended with an underscore (tip: the `new` sub command will create a new script in your scripts directory - `cmdr new _new-built-in.sh`).
 2. Write your command (in whatever language you want) and save your changes.
 3. Call your new built-in with `cmdr new-built-in` (built-ins are hidden from the cmdr interface and will not show up alongside your custom scripts. However, they are callable directly from the command line).
